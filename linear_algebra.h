@@ -13,7 +13,8 @@ using Column = std::vector<Value>;
 using Matrix = std::vector<Row>;
 
 Value multiply(Row row, Column column);
-Column muliply(Matrix matrix, Column column);
+
+[[maybe_unused]] Column multiply(const Matrix &matrix, const Column &column);
 
 
 #endif //SIMPLEX_LINEAR_ALGEBRA_H

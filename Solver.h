@@ -12,6 +12,7 @@ public:
 
     virtual void solve() = 0;
 private:
+protected:
     LinearProgram & _linear_program;
 };
 

@@ -10,13 +10,22 @@
 
 class LinearProgram {
 public:
-    enum State {UNSOLVED, SOLVED, OPTIMAL};
+    enum State {UNSOLVED, SOLVED [[maybe_unused]], OPTIMAL [[maybe_unused]]
+    };
 
-    LinearProgram(Column target_vector, Column constraints_vector, Matrix constraints_matrix);
+    LinearProgram(Column target_vector, Matrix constraints_matrix, Column constraints_vector);
 
-    void optimize();
+    [[maybe_unused]] void optimize();
 
-    void make_constraints_vector_non_negative();
+    [[maybe_unused]] void make_constraints_vector_non_negative();
+
+    [[maybe_unused]] [[nodiscard]] Row const& target_vector() const;
+    [[nodiscard]] Column const& constraints_vector() const;
+    [[nodiscard]] Matrix const& constraints_matrix() const;
+
+    [[nodiscard]] size_t num_variables() const;
+    [[nodiscard]] size_t num_equations() const;
+
 
 
 private:
@@ -26,7 +35,7 @@ private:
 
     Column _solution;
 
-    State _state;
+    [[maybe_unused]] State _state;
 
 
 
