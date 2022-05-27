@@ -7,12 +7,10 @@
 
 #include "linear_algebra.h"
 #include "Solver.h"
+#include "typedef.h"
 
 class LinearProgram {
 public:
-    enum State {UNSOLVED, SOLVED [[maybe_unused]], OPTIMAL [[maybe_unused]]
-    };
-
     LinearProgram(Column target_vector, Matrix constraints_matrix, Column constraints_vector);
 
     [[maybe_unused]] void optimize();
