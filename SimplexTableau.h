@@ -23,6 +23,8 @@ public:
 
     [[nodiscard]] Column extract_solution() const;
 
+    void print();
+
 private:
 
     [[nodiscard]] std::optional<VarID> blands_rule_new_basis_index() const;

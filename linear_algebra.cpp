@@ -32,16 +32,6 @@ Row negate(Row const& row){
     return ret;
 }
 
-Matrix negate(Matrix const& matrix){
-    Matrix ret(matrix);
-    for(Column & column : ret){
-        for(Value & val : column){
-            val *= -1;
-        }
-    }
-    return ret;
-}
-
 void add(Row & a, Row const& b){
     for(size_t i = 0; i < std::min(a.size(), b.size()); i++){
         a[i] += b[i];
@@ -49,8 +39,8 @@ void add(Row & a, Row const& b){
 }
 
 Row multiply(Row row, Value value){
-    for(size_t i = 0; i < row.size(); i++){
-        row[i] *= value;
+    for(double & i : row){
+        i *= value;
     }
     return row;
 }
@@ -63,7 +53,7 @@ void print(const Matrix &matrix){
 void print(const Row& row, std::string const& left, std::string const& right){
     std::cout << left;
     for(size_t i = 0; i < row.size()-1; i++){
-        std::cout << std::fixed << std::setprecision(2) << row[i] << ", ";
+        std::cout << std::fixed << std::setw(6) << row[i] << ", ";
     }
-    std::cout << std::fixed << std::setprecision(2) << row.back() << right;
+    std::cout << std::fixed << std::setw(6) << row.back() << right;
 }

@@ -8,16 +8,20 @@
 #include "linear_algebra.h"
 #include "Solver.h"
 #include "typedef.h"
+#include <istream>
 
 class LinearProgram {
 public:
-    LinearProgram(Column target_vector, Matrix constraints_matrix, Column constraints_vector);
 
-    [[maybe_unused]] void maximize();
+    explicit LinearProgram(std::basic_istream<char> & file);
 
-    [[maybe_unused]] void make_constraints_vector_non_negative();
+    [[maybe_unused]] LinearProgram(Column target_vector, Matrix constraints_matrix, Column constraints_vector);
 
-    [[maybe_unused]] [[nodiscard]] Row const& target_vector() const;
+    void maximize();
+
+    void make_constraints_vector_non_negative();
+
+    [[nodiscard]] Row const& target_vector() const;
     [[nodiscard]] Column const& constraints_vector() const;
     [[nodiscard]] Matrix const& constraints_matrix() const;
 
@@ -31,6 +35,8 @@ public:
     [[nodiscard]] Value get_solution_value() const;
 
     [[nodiscard]] State state() const;
+
+    void print();
 
 
 

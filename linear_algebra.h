@@ -13,12 +13,13 @@ using Row = std::vector<Value>;
 using Column = std::vector<Value>;
 using Matrix = std::vector<Row>;
 
+constexpr Value EPSILON = 1e-8;
+
 Value multiply(Row row, Column column);
 Row multiply(Row row, Value value);
-[[maybe_unused]] Column multiply(const Matrix &matrix, const Column &column);
+Column multiply(const Matrix &matrix, const Column &column);
 
 Row negate(Row const& row);
-Matrix negate(Matrix const& matrix);
 
 void add(Row & a, Row const& b);
 

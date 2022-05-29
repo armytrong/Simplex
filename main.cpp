@@ -1,12 +1,16 @@
 #include <iostream>
 #include <fstream>
-#include <sstream>
+#include <iomanip>
 
 #include "linear_algebra.h"
 #include "typedef.h"
 #include "LinearProgram.h"
 
+
 int main(int argc, char **argv) {
+
+    std::cout << std::setprecision(2);
+
     if (argc < 2) {
         std::cerr << "Error: specify source." << std::endl;
         return 1;
@@ -18,45 +22,8 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    VarID num_equations, num_variables;
-    Row target_vector;
-    Column constraits_vector;
-    Matrix constraints_matrix;
+    LinearProgram linear_program(file);
 
-    std::string line;
-    std::getline(file, line);
-    std::stringstream ss(line);
-    ss >> num_equations >> num_variables;
-
-    std::getline(file, line);
-    ss = std::stringstream(line);
-    for (VarID i = 0; i < num_variables; i++) {
-        Value val;
-        ss >> val;
-        target_vector.push_back(val);
-    }
-
-    std::getline(file, line);
-    ss = std::stringstream(line);
-    for (VarID i = 0; i < num_equations; i++) {
-        Value val;
-        ss >> val;
-        constraits_vector.push_back(val);
-    }
-
-    constraints_matrix.resize(num_equations);
-    for (VarID i = 0; i < num_equations; i++) {
-        std::getline(file, line);
-        ss = std::stringstream(line);
-        for (VarID j = 0; j < num_variables; j++) {
-            std::cout << i << ", " << j << std::endl;
-            Value val;
-            ss >> val;
-            constraints_matrix[i].push_back(val);
-        }
-    }
-
-    LinearProgram linear_program(target_vector, constraints_matrix, constraits_vector);
     linear_program.maximize();
 
     switch (linear_program.state()) {

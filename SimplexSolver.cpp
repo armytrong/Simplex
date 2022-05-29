@@ -9,13 +9,19 @@
 State SimplexSolver::solve() {
     SimplexTableau tableau = create_extended_simplex_tableau();
     State state;
-    while((state = tableau.iterate()) == SOLVED);
+    tableau.print();
+    while((state = tableau.iterate()) == SOLVED){
+        tableau.print();
+    }
     assert(state == OPTIMAL && "The auxiliary simplex must reach an optimal solution");
     if( not tableau.crop_tableau(_linear_program.num_equations())){
         return INFEASIBLE;
     }
     tableau.set_target_equation(0, _linear_program.target_vector());
-    while(tableau.iterate() == SOLVED);
+    tableau.print();
+    while(tableau.iterate() == SOLVED){
+        tableau.print();
+    }
     _linear_program.set_solution(tableau.extract_solution());
     return tableau.iterate();
 }
