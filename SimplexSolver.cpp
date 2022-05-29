@@ -2,59 +2,64 @@
 // Created by jgier on 25.05.2022.
 //
 
+#include <cassert>
 #include "SimplexSolver.h"
 #include "LinearProgram.h"
 
-void SimplexSolver::solve() {
-    Row start_solution_basis = compute_basis_with_feasible_solution();
-    solve(start_solution_basis);
+State SimplexSolver::solve() {
+    SimplexTableau tableau = create_extended_simplex_tableau();
+    State state;
+    while((state = tableau.iterate()) == SOLVED);
+    assert(state == OPTIMAL && "The auxiliary simplex must reach an optimal solution");
+    if( not tableau.crop_tableau(_linear_program.num_equations())){
+        return INFEASIBLE;
+    }
+    tableau.set_target_equation(0, _linear_program.target_vector());
+    while(tableau.iterate() == SOLVED);
+    _linear_program.set_solution(tableau.extract_solution());
+    return tableau.iterate();
 }
 
-Row SimplexSolver::solve(Row basis) {
-    return {};
-}
 
-Row SimplexSolver::compute_basis_with_feasible_solution() {
-    Matrix auxiliary_constraints_matrix = construct_auxiliary_constraits_matrix();
-    Row auxiliary_target_vector = construct_auxiliary_target_vector();
-    LinearProgram auxiliary_linear_program(
-            auxiliary_target_vector,
-            auxiliary_constraints_matrix,
-            _linear_program.constraints_vector()
-    );
-    Row auxiliary_basis = construct_auxiliary_basis();
-    SimplexSolver auxiliary_solver(auxiliary_linear_program, auxiliary_basis);
-    return auxiliary_solver.solve(auxiliary_basis);
-}
+SimplexTableau SimplexSolver::create_extended_simplex_tableau() {
+    VarID num_original_variables = _linear_program.num_variables();
+    VarID num_slack_variables = _linear_program.num_equations();
 
-Matrix SimplexSolver::construct_auxiliary_constraits_matrix() const {
-    Matrix const &constraints_matrix = _linear_program.constraints_matrix();
-    Matrix ret{constraints_matrix};
-    for (size_t i = 0; i < constraints_matrix.size(); i++) {
-        for (size_t j = 0; j < constraints_matrix.size(); j++) {
-            ret[i].push_back(static_cast<Value>(i == j));
+    std::vector<bool> index_in_basis(num_original_variables, false);
+    for(VarID i = 0; i < num_slack_variables; i++){
+        index_in_basis.push_back(true);
+    }
+
+    Column constant_summands_of_equations(num_original_variables,0);
+    for(VarID i = 0; i < num_slack_variables; i++){
+        constant_summands_of_equations.push_back(_linear_program.constraints_vector()[i]);
+    }
+
+    (negate(_linear_program.constraints_vector()));
+    Matrix linear_coeffitients_of_equations;
+    for(VarID i = 0; i < num_original_variables; i++){
+        linear_coeffitients_of_equations.push_back(Column(num_original_variables + num_slack_variables));
+    }
+    for(VarID i = 0; i < num_slack_variables; i++){
+        linear_coeffitients_of_equations.push_back(negate(_linear_program.constraints_matrix()[i]));
+        for(VarID j = 0; j < num_slack_variables; j++){
+            linear_coeffitients_of_equations.back().push_back(0);
         }
     }
-    return ret;
+
+    Value constant_term_of_target_equation = 0;
+    Row linear_coeffitients_of_target_equation(num_original_variables  + num_slack_variables,0);
+    for(VarID i = num_original_variables; i < num_slack_variables + num_original_variables; i++){
+        add(linear_coeffitients_of_target_equation, multiply(linear_coeffitients_of_equations[i],-1));
+        constant_term_of_target_equation -= constant_summands_of_equations[i];
+    }
+
+    return {index_in_basis, constant_summands_of_equations, linear_coeffitients_of_equations,
+            constant_term_of_target_equation, linear_coeffitients_of_target_equation};
 }
 
-
-Row SimplexSolver::construct_auxiliary_target_vector() const {
-    Row ret;
-    for (size_t i = 0; i < _linear_program.num_variables(); i++) {
-        ret.push_back(0);
-    }
-    for (size_t i = 0; i < _linear_program.num_equations(); i++) {
-        ret.push_back(-1);
-    }
-    return ret;
-}
-
-Row SimplexSolver::construct_auxiliary_basis() const{
-    Row ret;
-    for(size_t i = 0; i < _linear_program.num_equations(); i++){
-        ret.push_back(static_cast<double>(i + _linear_program.num_variables()));
-    }
-    return ret;
+SimplexSolver::SimplexSolver(LinearProgram &linear_program) :
+        Solver(linear_program){
+    _linear_program.make_constraints_vector_non_negative();
 }
 

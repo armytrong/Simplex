@@ -2,6 +2,7 @@
 // Created by jgier on 25.05.2022.
 //
 
+#include <cassert>
 #include "LinearProgram.h"
 #include "SimplexSolver.h"
 
@@ -13,16 +14,16 @@ LinearProgram::LinearProgram(Column target_vector, Matrix constraints_matrix, Co
     _solution = Column(size(_target_vector));
 }
 
-[[maybe_unused]] void LinearProgram::optimize() {
+void LinearProgram::maximize() {
     SimplexSolver simplex_solver(*this);
-    simplex_solver.solve();
+    _state = simplex_solver.solve();
 }
 
-[[maybe_unused]] void LinearProgram::make_constraints_vector_non_negative() {
+void LinearProgram::make_constraints_vector_non_negative() {
     for (size_t i = 0; i < _constraints_vector.size(); i++) {
         if (_constraints_vector[i] < 0) {
             _constraints_vector[i] *= -1;
-            for (size_t j = 0; j < _constraints_matrix[i].size(); i++) {
+            for (size_t j = 0; j < _constraints_matrix[i].size(); j++) {
                 _constraints_matrix[i][j] *= -1;
             }
         }
@@ -47,4 +48,30 @@ size_t LinearProgram::num_variables() const {
 
 size_t LinearProgram::num_equations() const {
     return _constraints_vector.size();
+}
+
+void LinearProgram::set_solution(Column soluiton) {
+    assert(is_solution(soluiton));
+    _solution = std::move(soluiton);
+}
+
+bool LinearProgram::is_solution(const Column &solution) const {
+    Column temp = multiply(_constraints_matrix,solution);
+    if(temp.size() != _constraints_vector.size()) return false;
+    for(VarID i = 0; i < temp.size(); i++){
+        if(temp[i] != _constraints_vector[i]) return false;
+    }
+    return true;
+}
+
+Column LinearProgram::get_solution() const {
+    return _solution;
+}
+
+Value LinearProgram::get_solution_value() const {
+    return multiply(_target_vector,_solution);
+}
+
+State LinearProgram::state() const {
+    return _state;
 }

@@ -13,7 +13,7 @@ class LinearProgram {
 public:
     LinearProgram(Column target_vector, Matrix constraints_matrix, Column constraints_vector);
 
-    [[maybe_unused]] void optimize();
+    [[maybe_unused]] void maximize();
 
     [[maybe_unused]] void make_constraints_vector_non_negative();
 
@@ -24,6 +24,14 @@ public:
     [[nodiscard]] size_t num_variables() const;
     [[nodiscard]] size_t num_equations() const;
 
+    void set_solution(Column soluiton);
+    [[nodiscard]] bool is_solution(Column const& solution) const;
+
+    [[nodiscard]] Column get_solution() const;
+    [[nodiscard]] Value get_solution_value() const;
+
+    [[nodiscard]] State state() const;
+
 
 
 private:
@@ -33,7 +41,7 @@ private:
 
     Column _solution;
 
-    [[maybe_unused]] State _state;
+    State _state;
 
 
 

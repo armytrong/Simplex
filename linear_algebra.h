@@ -6,6 +6,7 @@
 #define SIMPLEX_LINEAR_ALGEBRA_H
 
 #include <vector>
+#include <string>
 
 using Value = double;
 using Row = std::vector<Value>;
@@ -13,8 +14,15 @@ using Column = std::vector<Value>;
 using Matrix = std::vector<Row>;
 
 Value multiply(Row row, Column column);
-
+Row multiply(Row row, Value value);
 [[maybe_unused]] Column multiply(const Matrix &matrix, const Column &column);
 
+Row negate(Row const& row);
+Matrix negate(Matrix const& matrix);
+
+void add(Row & a, Row const& b);
+
+void print(const Matrix &matrix);
+void print(const Row& row, std::string const& left ="(", std::string const& right = ")");
 
 #endif //SIMPLEX_LINEAR_ALGEBRA_H

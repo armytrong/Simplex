@@ -4,13 +4,16 @@
 
 #ifndef SIMPLEX_SOLVER_H
 #define SIMPLEX_SOLVER_H
+
+#include "typedef.h"
+
 class LinearProgram;
 
 class Solver {
 public:
     explicit Solver(LinearProgram & linear_program) : _linear_program(linear_program){}
 
-    virtual void solve() = 0;
+    virtual State solve() = 0;
 private:
 protected:
     LinearProgram & _linear_program;
