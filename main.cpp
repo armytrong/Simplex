@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <string>
 
 #include "linear_algebra.h"
 #include "typedef.h"
@@ -29,13 +30,13 @@ int main(int argc, char **argv) {
     switch (linear_program.state()) {
         case UNBOUNDED:
             std::cout << "The LP is unbounded. A solution is ";
-            print(linear_program.get_solution());
+            print(linear_program.solution());
             std::cout << std::endl;
             break;
         case OPTIMAL:
             std::cout << "An optimal solution is ";
-            print(linear_program.get_solution());
-            std::cout << " with value " << linear_program.get_solution_value() << std::endl;
+            print(linear_program.solution());
+            std::cout << std::endl << " with value " << linear_program.solution_value() << std::endl;
             break;
         case INFEASIBLE:
             std::cout << "The LP is infeasible." << std::endl;
@@ -43,7 +44,6 @@ int main(int argc, char **argv) {
         default:
             std::cerr << "Something went wrong." << std::endl;
     }
-
 
     return 0;
 }

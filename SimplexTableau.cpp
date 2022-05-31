@@ -60,9 +60,13 @@ void SimplexTableau::switch_basis_elements(VarID new_index, VarID old_index) {
     assert(_index_in_basis[new_index] == false && "new index must not already be in basis");
     assert(_index_in_basis[old_index] == true && "old index must stem from basis");
 
+    /*
+     * These are all computations to transfer the tableau from the previous Basis to the new Basis. They result
+     * directly from plugging the equations into one another.
+     */
     _constant_summands_of_equations[new_index] =
             -_constant_summands_of_equations[old_index] / _linear_coeffitients_of_equations[old_index][new_index];
-    assert(_constant_summands_of_equations[new_index] >= 0 && "Solution must be >= 0 at all times");
+    assert(_constant_summands_of_equations[new_index] + EPSILON >= 0 && "Solution must be >= 0 at all times");
     _constant_summands_of_equations[old_index] = 0;
 
     for (VarID i = 0; i < _constant_summands_of_equations.size(); i++) {

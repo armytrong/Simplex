@@ -6,20 +6,25 @@
 #define SIMPLEX_SIMPLEXSOLVER_H
 
 #include <optional>
-#include "Solver.h"
 #include "linear_algebra.h"
 #include "SimplexTableau.h"
 
 
-class SimplexSolver : public Solver {
+class SimplexSolver {
 public:
     explicit SimplexSolver(LinearProgram &linear_program);
 
-    State solve() override;
+    State solve();
 
 private:
 
-    [[nodiscard]] SimplexTableau create_extended_simplex_tableau();
+    /*
+     * The extended simplex tableau referres to the addition of variables with the purpose of omputing an initial
+     * solution.
+     */
+    [[nodiscard]] SimplexTableau create_extended_simplex_tableau() const;
+
+    LinearProgram &_linear_program;
 
 };
 

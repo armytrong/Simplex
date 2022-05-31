@@ -6,13 +6,16 @@
 #define SIMPLEX_LINEARPROGRAM_H
 
 #include "linear_algebra.h"
-#include "Solver.h"
 #include "typedef.h"
 #include <istream>
 
+/// Class to store a linear program
 class LinearProgram {
 public:
 
+    /*
+     * Import a linear program from a file with the format given in the task.
+     */
     explicit LinearProgram(std::basic_istream<char> & file);
 
     [[maybe_unused]] LinearProgram(Column target_vector, Matrix constraints_matrix, Column constraints_vector);
@@ -21,20 +24,23 @@ public:
 
     void make_constraints_vector_non_negative();
 
+    /// Getters
     [[nodiscard]] Row const& target_vector() const;
     [[nodiscard]] Column const& constraints_vector() const;
     [[nodiscard]] Matrix const& constraints_matrix() const;
 
+    [[nodiscard]] Column solution() const;
+    [[nodiscard]] Value solution_value() const;
+
+    [[nodiscard]] State state() const;
+
     [[nodiscard]] size_t num_variables() const;
     [[nodiscard]] size_t num_equations() const;
 
+    /// Setter
     void set_solution(Column soluiton);
-    [[nodiscard]] bool is_solution(Column const& solution) const;
 
-    [[nodiscard]] Column get_solution() const;
-    [[nodiscard]] Value get_solution_value() const;
-
-    [[nodiscard]] State state() const;
+    [[nodiscard]] bool verify_solution(Column const& solution) const;
 
     void print();
 

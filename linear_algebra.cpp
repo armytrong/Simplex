@@ -7,52 +7,50 @@
 #include <iostream>
 #include <iomanip>
 
-Value multiply(Row row, Column column){
+Value multiply(Row row, Column column) {
     assert(row.size() == column.size() && "Cannot multiply vectors of different dimension.");
     Value ret = 0;
-    for(size_t i = 0; i < row.size(); i++) {
+    for (size_t i = 0; i < row.size(); i++) {
         ret += row[i] * column[i];
     }
     return ret;
 }
 
-[[maybe_unused]] Column multiply(const Matrix &matrix, const Column &column){
+[[maybe_unused]] Column multiply(const Matrix &matrix, const Column &column) {
     Column ret(matrix.size(), 0);
     for (size_t i = 0; i < ret.size(); i++) {
+        assert(matrix[i].size() == column.size() && "Cannot multiply matrix with vector of unmatching dimension.");
         ret[i] = multiply(matrix[i], column);
     }
     return ret;
 }
 
-Row negate(Row const& row){
-    Row ret(row);
-    for(Value & val : ret){
-         val *= -1;
-    }
-    return ret;
+Row negate(Row const &row) {
+    return multiply(row, -1);
 }
 
-void add(Row & a, Row const& b){
-    for(size_t i = 0; i < std::min(a.size(), b.size()); i++){
+void add(Row &a, Row const &b) {
+    for (size_t i = 0; i < std::min(a.size(), b.size()); i++) {
         a[i] += b[i];
     }
 }
 
-Row multiply(Row row, Value value){
-    for(double & i : row){
+Row multiply(Row row, Value value) {
+    for (double &i: row) {
         i *= value;
     }
     return row;
 }
 
-void print(const Matrix &matrix){
-    for(auto const& row : matrix){
+void print(const Matrix &matrix) {
+    for (auto const &row: matrix) {
         print(row, "|", "|\n");
     }
 }
-void print(const Row& row, std::string const& left, std::string const& right){
+
+void print(const Row &row, std::string const &left, std::string const &right) {
     std::cout << left;
-    for(size_t i = 0; i < row.size()-1; i++){
+    for (size_t i = 0; i < row.size() - 1; i++) {
         std::cout << std::fixed << std::setw(6) << row[i] << ", ";
     }
     std::cout << std::fixed << std::setw(6) << row.back() << right;
