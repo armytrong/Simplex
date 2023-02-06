@@ -6,7 +6,7 @@
 #include <cassert>
 #include <iostream>
 #include <iomanip>
-
+#include <limits>
 
 
 SimplexTableau::SimplexTableau(
@@ -15,13 +15,12 @@ SimplexTableau::SimplexTableau(
         Matrix linear_coeffitients_of_equations,
         Value constant_term_of_target_equation,
         Row linear_coeffitients_of_target_equation
-):
-       _index_in_basis(std::move(index_in_basis)),
-       _constant_summands_of_equations(std::move(constant_summands_of_equations)),
-       _linear_coeffitients_of_equations(std::move(linear_coeffitients_of_equations)),
-       _constant_term_of_target_equation(constant_term_of_target_equation),
-       _linear_coeffitients_of_target_equation(std::move(linear_coeffitients_of_target_equation))
-{}
+) :
+        _index_in_basis(std::move(index_in_basis)),
+        _constant_summands_of_equations(std::move(constant_summands_of_equations)),
+        _linear_coeffitients_of_equations(std::move(linear_coeffitients_of_equations)),
+        _constant_term_of_target_equation(constant_term_of_target_equation),
+        _linear_coeffitients_of_target_equation(std::move(linear_coeffitients_of_target_equation)) {}
 
 State SimplexTableau::iterate() {
     auto new_basis_index = blands_rule_new_basis_index();
@@ -45,7 +44,7 @@ std::optional<VarID> SimplexTableau::blands_rule_new_basis_index() const {
 
 std::optional<VarID> SimplexTableau::blands_rule_old_basis_index(VarID new_basis_index) const {
     std::optional<VarID> result = std::nullopt;
-    double current_max = -std::numeric_limits<Value>::infinity();
+    auto current_max = -std::numeric_limits<Value>::infinity();
     for (VarID i = 0; i < _linear_coeffitients_of_equations.size(); i++) {
         if (_linear_coeffitients_of_equations[i][new_basis_index] + EPSILON < 0 &&
             _constant_summands_of_equations[i] / _linear_coeffitients_of_equations[i][new_basis_index] > current_max) {
@@ -66,9 +65,9 @@ void SimplexTableau::switch_basis_elements(VarID new_index, VarID old_index) {
     _constant_summands_of_equations[old_index] = 0;
 
     for (VarID i = 0; i < _constant_summands_of_equations.size(); i++) {
-        if(i == new_index or i == old_index) continue;
+        if (i == new_index or i == old_index) continue;
         _constant_summands_of_equations[i] += _linear_coeffitients_of_equations[i][new_index]
-                * _constant_summands_of_equations[new_index];
+                                              * _constant_summands_of_equations[new_index];
     }
 
     for (VarID i = 0; i < _linear_coeffitients_of_equations[new_index].size(); i++) {
@@ -102,7 +101,7 @@ void SimplexTableau::switch_basis_elements(VarID new_index, VarID old_index) {
 
     _constant_term_of_target_equation +=
             _linear_coeffitients_of_target_equation[new_index] * _constant_summands_of_equations[new_index];
-    auto old_coeffitient = _linear_coeffitients_of_target_equation[new_index];
+    auto const old_coeffitient = _linear_coeffitients_of_target_equation[new_index];
     for (VarID i = 0; i < _linear_coeffitients_of_target_equation.size(); i++) {
         _linear_coeffitients_of_target_equation[i] += old_coeffitient * _linear_coeffitients_of_equations[new_index][i];
     }
@@ -119,14 +118,14 @@ Column SimplexTableau::extract_solution() const {
 bool SimplexTableau::crop_tableau(VarID num_slack_variables_to_crop) {
     const VarID num_remaining_variables = _constant_summands_of_equations.size() - num_slack_variables_to_crop;
     std::vector<VarID> remaining_variables_not_in_basis;
-    for(VarID i = 0; i < num_remaining_variables; i++){
-        if(not _index_in_basis[i]){
+    for (VarID i = 0; i < num_remaining_variables; i++) {
+        if (not _index_in_basis[i]) {
             remaining_variables_not_in_basis.push_back(i);
         }
     }
-    for(VarID i = num_remaining_variables; i < num_remaining_variables + num_slack_variables_to_crop; i++){
-        if(_index_in_basis[i]){
-            if(_constant_summands_of_equations[i] != 0){
+    for (VarID i = num_remaining_variables; i < num_remaining_variables + num_slack_variables_to_crop; i++) {
+        if (_index_in_basis[i]) {
+            if (_constant_summands_of_equations[i] != 0) {
                 return false; // cannot crop, bc a none zero element is to be cropped.
             }
             VarID new_index = remaining_variables_not_in_basis.back();
@@ -139,7 +138,7 @@ bool SimplexTableau::crop_tableau(VarID num_slack_variables_to_crop) {
     _constant_summands_of_equations.resize(num_remaining_variables);
     _linear_coeffitients_of_equations.resize(num_remaining_variables);
     _linear_coeffitients_of_target_equation.resize(num_remaining_variables);
-    for(auto & row : _linear_coeffitients_of_equations){
+    for (auto &row: _linear_coeffitients_of_equations) {
         row.resize(num_remaining_variables);
     }
     _index_in_basis.resize(num_remaining_variables);
@@ -151,42 +150,42 @@ void SimplexTableau::set_target_equation(Value constant_term, Row linear_coeffit
     _constant_term_of_target_equation = constant_term;
     _linear_coeffitients_of_target_equation = std::move(linear_coeffitients);
 
-    for(VarID i = 0; i < _linear_coeffitients_of_target_equation.size(); i++){
-        if(_index_in_basis[i] && _linear_coeffitients_of_target_equation[i] != 0){
+    for (VarID i = 0; i < _linear_coeffitients_of_target_equation.size(); i++) {
+        if (_index_in_basis[i] && _linear_coeffitients_of_target_equation[i] != 0) {
             add(_linear_coeffitients_of_target_equation, multiply(_linear_coeffitients_of_equations[i],
                                                                   _linear_coeffitients_of_target_equation[i]));
             _constant_term_of_target_equation += _constant_summands_of_equations[i] *
-                    _linear_coeffitients_of_target_equation[i];
+                                                 _linear_coeffitients_of_target_equation[i];
             _linear_coeffitients_of_target_equation[i] = 0;
         }
     }
 }
 
-void SimplexTableau::print(){
-    for(VarID i = 0; i < _constant_summands_of_equations.size(); i++){
-        if(_index_in_basis[i]){
+void SimplexTableau::print() {
+    for (VarID i = 0; i < _constant_summands_of_equations.size(); i++) {
+        if (_index_in_basis[i]) {
             std::cout << "x_" << i << " = " << std::fixed << std::setw(6) << _constant_summands_of_equations[i];
-            for(VarID j = 0; j < _linear_coeffitients_of_equations[i].size(); j++){
-                if(not _index_in_basis[j]){
+            for (VarID j = 0; j < _linear_coeffitients_of_equations[i].size(); j++) {
+                if (not _index_in_basis[j]) {
                     Value print_value = std::abs(_linear_coeffitients_of_equations[i][j]);
                     std::string sign = _linear_coeffitients_of_equations[i][j] >= 0 ? " + " : " - ";
-                    std::cout << sign << std::fixed << std::setw(6) << print_value << "x_"<< j;
+                    std::cout << sign << std::fixed << std::setw(6) << print_value << "x_" << j;
                 }
             }
             std::cout << std::endl;
         }
     }
     std::cout << "---------------------------------------------------------------------------------------------------"
-    << std::endl;
+              << std::endl;
 
     std::cout << "  z = " << std::fixed << std::setw(6) << _constant_term_of_target_equation;
-    for(VarID j = 0; j < _linear_coeffitients_of_target_equation.size(); j++){
-        if(not _index_in_basis[j]){
+    for (VarID j = 0; j < _linear_coeffitients_of_target_equation.size(); j++) {
+        if (not _index_in_basis[j]) {
             Value print_value = std::abs(_linear_coeffitients_of_target_equation[j]);
             std::string sign = _linear_coeffitients_of_target_equation[j] >= 0 ? " + " : " - ";
-            std::cout << sign << std::fixed << std::setw(6) << print_value << "x_"<< j;
+            std::cout << sign << std::fixed << std::setw(6) << print_value << "x_" << j;
         }
     }
-    std::cout << std::endl <<std::endl;
+    std::cout << std::endl << std::endl;
 
 }

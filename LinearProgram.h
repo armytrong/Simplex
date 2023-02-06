@@ -41,7 +41,7 @@ public:
 
 
 private:
-    Row _target_vector;              // c
+    Row _target_vector;               // c
     Column _constraints_vector;       // b
     Matrix _constraints_matrix;       // A
 

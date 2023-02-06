@@ -9,18 +9,18 @@
 State SimplexSolver::solve() {
     SimplexTableau tableau = create_extended_simplex_tableau();
     State state;
-    tableau.print();
+    //tableau.print();
     while((state = tableau.iterate()) == SOLVED){
-        tableau.print();
+        //tableau.print();
     }
     assert(state == OPTIMAL && "The auxiliary simplex must reach an optimal solution");
     if( not tableau.crop_tableau(_linear_program.num_equations())){
         return INFEASIBLE;
     }
     tableau.set_target_equation(0, _linear_program.target_vector());
-    tableau.print();
+    //tableau.print();
     while(tableau.iterate() == SOLVED){
-        tableau.print();
+        //tableau.print();
     }
     _linear_program.set_solution(tableau.extract_solution());
     return tableau.iterate();
@@ -28,8 +28,8 @@ State SimplexSolver::solve() {
 
 
 SimplexTableau SimplexSolver::create_extended_simplex_tableau() {
-    VarID num_original_variables = _linear_program.num_variables();
-    VarID num_slack_variables = _linear_program.num_equations();
+    VarID const num_original_variables = _linear_program.num_variables();
+    VarID const num_slack_variables = _linear_program.num_equations();
 
     std::vector<bool> index_in_basis(num_original_variables, false);
     for(VarID i = 0; i < num_slack_variables; i++){
@@ -44,7 +44,7 @@ SimplexTableau SimplexSolver::create_extended_simplex_tableau() {
     (negate(_linear_program.constraints_vector()));
     Matrix linear_coeffitients_of_equations;
     for(VarID i = 0; i < num_original_variables; i++){
-        linear_coeffitients_of_equations.push_back(Column(num_original_variables + num_slack_variables));
+        linear_coeffitients_of_equations.emplace_back(num_original_variables + num_slack_variables);
     }
     for(VarID i = 0; i < num_slack_variables; i++){
         linear_coeffitients_of_equations.push_back(negate(_linear_program.constraints_matrix()[i]));

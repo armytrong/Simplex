@@ -64,7 +64,10 @@ bool LinearProgram::is_solution(const Column &solution) const {
     Column temp = multiply(_constraints_matrix,solution);
     if(temp.size() != _constraints_vector.size()) return false;
     for(VarID i = 0; i < temp.size(); i++){
-        if(temp[i] - _constraints_vector[i] > EPSILON) return false;
+        if(temp[i] - _constraints_vector[i] > EPSILON) {
+            std::cout << "Error of " << temp[i]-_constraints_vector[i] << std::endl;
+            return false;
+        }
     }
     return true;
 }
@@ -127,5 +130,5 @@ LinearProgram::LinearProgram(std::basic_istream<char> &file) {
 
     _state = UNSOLVED;
     _solution = Column(size(_target_vector));
-    print();
+    //print();
 }

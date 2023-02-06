@@ -23,6 +23,12 @@ int main(int argc, char **argv) {
     }
 
     LinearProgram linear_program(file);
+    std::cout << "Solving linear program with "
+              << linear_program.num_variables()
+              << " variables and "
+              << linear_program.num_equations()
+              << " constraints."
+              << std::endl;
 
     linear_program.maximize();
 
